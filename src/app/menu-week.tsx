@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60 },
   list: { paddingHorizontal: space.gutter, gap: 10, paddingTop: 6 },
   dayRow: { flexDirection: 'row', gap: 14, backgroundColor: colors.surface, borderRadius: radius.card, padding: 16 },
-  dayRowToday: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: 'rgba(194,249,75,0.22)' },
+  dayRowToday: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.limeBorder },
   dayBadge: { width: 48, alignItems: 'center', gap: 2, paddingTop: 2 },
   dayBadgeToday: {},
   dayWd: { fontFamily: font.bold, fontSize: 16, color: colors.textSecondary },

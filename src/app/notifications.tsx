@@ -16,7 +16,7 @@ import { SfIcon } from '@/components/SfIcon';
 function kindStyle(kind: string): { color: string; bg: string } {
   switch (kind) {
     case 'guarantee_rejected':
-      return { color: colors.danger, bg: 'rgba(226,128,108,0.12)' };
+      return { color: colors.danger, bg: colors.dangerBg };
     case 'reminder':
       return { color: colors.warning, bg: colors.warningBg };
     case 'friend':

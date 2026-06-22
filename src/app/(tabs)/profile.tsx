@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   emptyText: { fontFamily: font.medium, fontSize: 13.5, color: colors.textDim, textAlign: 'center' },
 
   friendCount: { fontFamily: font.medium, fontSize: 14, color: colors.textDim, marginLeft: 2 },
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(189,242,69,0.12)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.limeWash, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
   addText: { fontFamily: font.semibold, fontSize: 12.5, color: colors.lime, letterSpacing: -0.1 },
   friendCard: { backgroundColor: colors.surface, borderRadius: radius.card, paddingHorizontal: 16, paddingVertical: 4 },
   friendDivider: { height: 1, backgroundColor: colors.divider },

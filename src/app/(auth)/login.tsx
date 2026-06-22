@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 15.5,
     color: colors.text,
   },
-  error: { fontFamily: font.medium, fontSize: 13.5, color: '#E5786A', lineHeight: 19, marginTop: 2 },
+  error: { fontFamily: font.medium, fontSize: 13.5, color: colors.danger, lineHeight: 19, marginTop: 2 },
   primary: { backgroundColor: colors.lime, borderRadius: radius.field, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   primaryText: { fontFamily: font.bold, fontSize: 15.5, color: colors.onLime, letterSpacing: -0.2 },
   disabled: { opacity: 0.6 },

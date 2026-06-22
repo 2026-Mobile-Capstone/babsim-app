@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.cardLg, padding: 20, gap: 13 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconBox: { width: 44, height: 44, borderRadius: radius.field, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
-  iconBoxMuted: { backgroundColor: 'rgba(189,242,69,0.14)' },
+  iconBoxMuted: { backgroundColor: colors.limeWash },
   headText: { flex: 1, gap: 2 },
   title: { fontFamily: font.bold, fontSize: 18, letterSpacing: -0.3 },
   sub: { fontFamily: font.medium, fontSize: 12, color: colors.textFaint, letterSpacing: -0.1 },

@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.limeWash,
     borderWidth: 1,
-    borderColor: 'rgba(194,249,75,0.25)',
+    borderColor: colors.limeBorder,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,

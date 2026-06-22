@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   nameCol: { flex: 1, gap: 6 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   name: { fontFamily: font.bold, fontSize: 20, color: colors.text, letterSpacing: -0.3 },
-  badge: { backgroundColor: 'rgba(189,242,69,0.14)', borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
+  badge: { backgroundColor: colors.limeWash, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
   badgeText: { fontFamily: font.bold, fontSize: 10.5, color: colors.lime, letterSpacing: -0.1 },
   school: { fontFamily: font.medium, fontSize: 12.5, color: colors.textDim },
   editBtn: {
