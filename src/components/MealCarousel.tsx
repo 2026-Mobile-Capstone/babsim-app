@@ -1,7 +1,9 @@
-// 식단 카드 가로 캐러셀. 스냅으로 한 장씩 넘어가고, 가운데로 올수록 카드가 커지고 또렷해진다(양옆은 작고 흐릿).
+// 식단 카드 가로 캐러셀. 스냅으로 한 장씩 넘어가고, 가운데로 온 카드가 떠오른다(깊이 애니는 MealCard가 scrollX로 굴림).
+// 옆 카드를 탭하면 가운데로 미끄러져 오고, 가운데(포커스) 카드를 탭하면 주간 식단으로 간다.
 // 페이지 닷도 스크롤 위치를 따라 늘었다 줄었다 한다. 전부 reanimated 스크롤 값(scrollX) 하나로 굴린다.
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { AccessibilityInfo, ScrollView, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -13,6 +15,7 @@ import Animated, {
 import { colors } from '@/theme/tokens';
 import type { MealDay } from '@/data/mockData';
 import { MealCard } from '@/components/MealCard';
+import { PressableScale } from '@/components/PressableScale';
 
 const GAP = 14;
 const CARD_RATIO = 0.72; // 화면 너비 대비 카드 폭
@@ -24,10 +27,20 @@ export function MealCarousel({ days }: { days: MealDay[] }) {
   const cardWidth = Math.round(width * CARD_RATIO);
   const snap = cardWidth + GAP;
   const sidePad = (width - cardWidth) / 2 - GAP / 2; // 첫/마지막 카드도 정중앙에 오게
+  // 카드 높이는 폭에 비례해 고정한다 — 메뉴 개수와 무관하게 세 장이 같은 크기. 작은 기기 바닥값 340.
+  const cardHeight = Math.max(340, Math.round(cardWidth * 1.28));
 
   const initialIndex = Math.max(0, days.findIndex((d) => d.isToday));
   const scrollX = useSharedValue(0);
   const scrollRef = useRef<ScrollView>(null);
+
+  // 모션 줄이기 설정이면 탭 포커스 스크롤을 즉시(애니 없이)로 — 손가락 따라가는 스크롤 변형 자체는 그대로 둔다.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => sub.remove();
+  }, []);
 
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollX.value = e.contentOffset.x;
@@ -47,6 +60,16 @@ export function MealCarousel({ days }: { days: MealDay[] }) {
     if (w > 0 && w !== width) setWidth(w);
   }
 
+  // 옆 카드 탭 → 가운데로. 이미 가운데(포커스)면 → 주간 식단.
+  function handlePress(i: number) {
+    const center = Math.round(scrollX.value / snap);
+    if (i === center) {
+      router.push('/menu-week');
+    } else {
+      scrollRef.current?.scrollTo({ x: i * snap, animated: !reduceMotion });
+    }
+  }
+
   return (
     <View onLayout={onLayout}>
       {cardWidth > 0 && (
@@ -62,7 +85,16 @@ export function MealCarousel({ days }: { days: MealDay[] }) {
             onScroll={onScroll}
             scrollEventThrottle={16}>
             {days.map((day, index) => (
-              <CarouselItem key={day.id} day={day} index={index} scrollX={scrollX} cardWidth={cardWidth} snap={snap} />
+              <CarouselItem
+                key={day.id}
+                day={day}
+                index={index}
+                scrollX={scrollX}
+                cardWidth={cardWidth}
+                cardHeight={cardHeight}
+                snap={snap}
+                onPress={handlePress}
+              />
             ))}
           </Animated.ScrollView>
 
@@ -82,26 +114,27 @@ function CarouselItem({
   index,
   scrollX,
   cardWidth,
+  cardHeight,
   snap,
+  onPress,
 }: {
   day: MealDay;
   index: number;
   scrollX: SharedValue<number>;
   cardWidth: number;
+  cardHeight: number;
   snap: number;
+  onPress: (index: number) => void;
 }) {
-  const animatedStyle = useAnimatedStyle(() => {
-    const distance = Math.abs(scrollX.value - index * snap);
-    const scale = interpolate(distance, [0, snap], [1, 0.9], 'clamp');
-    const opacity = interpolate(distance, [0, snap], [1, 0.45], 'clamp');
-    return { transform: [{ scale }], opacity };
-  });
-
+  // 깊이(떠오름)는 MealCard 루트가 scrollX로 직접 굴린다. 래퍼는 폭·간격·탭(누름 스케일)만 담당.
+  // flexShrink:0 — 웹의 가로 ScrollView는 고정폭 자식도 줄여 버려서(카드가 한 글자 폭으로 찌부됨) 명시로 막는다.
   return (
-    // flexShrink:0 — 웹의 가로 ScrollView는 고정폭 자식도 줄여 버려서(카드가 한 글자 폭으로 찌부됨) 명시로 막는다.
-    <Animated.View style={[{ width: cardWidth, marginHorizontal: GAP / 2, flexShrink: 0 }, animatedStyle]}>
-      <MealCard day={day} />
-    </Animated.View>
+    <PressableScale
+      onPress={() => onPress(index)}
+      scaleTo={0.97}
+      style={{ width: cardWidth, marginHorizontal: GAP / 2, flexShrink: 0 }}>
+      <MealCard day={day} scrollX={scrollX} index={index} snap={snap} cardHeight={cardHeight} />
+    </PressableScale>
   );
 }
 
