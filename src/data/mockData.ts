@@ -15,9 +15,12 @@ export type MealDay = {
   certifiedCount?: number;
 };
 
-// 진짜 급식판 사진(스테인리스 식판). 홈 미션 카드·촬영 안내에서 "이런 걸 찍는다"를 보여 준다.
+// 진짜 급식판 사진(스테인리스 식판). 촬영 안내(CaptureVerify)에서 "이런 걸 찍는다"를 보여 준다.
 // 에셋 require는 Metro alias가 가끔 안 먹어서 상대경로로 둔다(이 파일은 src/data/).
 export const trayPhoto = require('../../assets/images/food/tray.jpg');
+
+// 홈 미션 카드(라임 배너) 우측 원형 음식 보울. 디자이너가 이 배너용으로 뽑아둔 에셋(Figma 34:3 img/banner).
+export const bannerBowl = require('../../assets/images/food/banner_bowl.png');
 
 // 통계 카드(먹은 기록 2x2)에 넣는 한 칸.
 export type StatCardData = {
