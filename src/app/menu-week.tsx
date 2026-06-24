@@ -1,6 +1,6 @@
 // 전체 급식표 — 홈 헤더 달력 아이콘의 목적지. 그 주 월~일 조식을 한눈에. 이전/다음 주로 넘긴다.
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,14 +23,24 @@ function shift(date: string, days: number): string {
   return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`;
 }
 
+// 그 날짜가 속한 주의 월요일(YYYYMMDD). 라벨을 fetch 전에 바로 보여주려고 로컬에서 계산한다.
+function mondayOf(date: string): string {
+  const d = new Date(Date.UTC(+date.slice(0, 4), +date.slice(4, 6) - 1, +date.slice(6, 8)));
+  const dow = d.getUTCDay(); // 0=일 .. 6=토
+  return shift(date, -((dow + 6) % 7)); // 월요일까지 며칠 전
+}
+
 export default function MenuWeekScreen() {
   const insets = useSafeAreaInsets();
   const [anchor, setAnchor] = useState(() => todayKst());
   const [data, setData] = useState<MenuWeekResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const today = todayKst();
+  // 로딩 중 전주/다음주 연타가 다 쌓여 여러 주씩 점프하던 문제 방지 — 진행 중엔 무시, 한 번에 한 주만.
+  const busy = useRef(false);
 
   const load = useCallback(async (date: string) => {
+    busy.current = true;
     setLoading(true);
     try {
       setData(await fetchMenuWeek(date));
@@ -38,6 +48,7 @@ export default function MenuWeekScreen() {
       // 실패 시 이전 데이터 유지
     } finally {
       setLoading(false);
+      busy.current = false;
     }
   }, []);
 
@@ -45,7 +56,15 @@ export default function MenuWeekScreen() {
     load(anchor);
   }, [anchor, load]);
 
-  const rangeLabel = data ? `${md(data.week_start)} – ${md(shift(data.week_start, 6))}` : '';
+  function goWeek(delta: number) {
+    if (busy.current) return; // 아직 로딩 중이면 탭 무시(연타 방지)
+    busy.current = true;
+    setAnchor((a) => shift(a, delta));
+  }
+
+  // 라벨은 fetch를 기다리지 않고 anchor(가려는 주)에서 바로 만든다 — 탭하면 주가 바뀐 게 즉시 보인다.
+  const weekStart = mondayOf(anchor);
+  const rangeLabel = `${md(weekStart)} – ${md(shift(weekStart, 6))}`;
 
   return (
     <View style={styles.screen}>
@@ -56,12 +75,12 @@ export default function MenuWeekScreen() {
       </View>
 
       <View style={styles.weekNav}>
-        <IconButton name="chevron.left" fallbackGlyph="‹" color={colors.textSecondary} background={colors.surfaceSunken} onPress={() => setAnchor((a) => shift(a, -7))} />
-        <Text style={styles.range}>{rangeLabel || '이번 주'}</Text>
-        <IconButton name="chevron.right" fallbackGlyph="›" color={colors.textSecondary} background={colors.surfaceSunken} onPress={() => setAnchor((a) => shift(a, 7))} />
+        <IconButton name="chevron.left" fallbackGlyph="‹" color={loading ? colors.textFaint : colors.textSecondary} background={colors.surfaceSunken} onPress={() => goWeek(-7)} />
+        <Text style={styles.range}>{rangeLabel}</Text>
+        <IconButton name="chevron.right" fallbackGlyph="›" color={loading ? colors.textFaint : colors.textSecondary} background={colors.surfaceSunken} onPress={() => goWeek(7)} />
       </View>
 
-      {loading && !data ? (
+      {loading ? (
         <View style={styles.center}>
           <ActivityIndicator color={colors.lime} />
         </View>
